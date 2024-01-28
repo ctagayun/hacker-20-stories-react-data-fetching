@@ -1,6 +1,17 @@
 /*================================================================
  React Data Fetching
    
+  Optional Hints:
+     - Use this https://hn.algolia.com/api/v1/search?query=React 
+     API endpoint of the Hacker News API
+
+     - Remove the initialStories variable, because this data will 
+     come from the API.
+
+     - Use the browser's native fetch API to perform the request.
+
+     - Note: A successful or erroneous request uses the same 
+     implementation logic that we already have in place.
 
   Review what is useState?
       - https://www.robinwieruch.de/react-usestate-hook/
@@ -8,6 +19,11 @@
       - When a state gets mutated, the component with the state 
       and all child components will re-render.
 
+      - Use the browser's native fetch API to perform the request.
+
+      - Note: A successful or erroneous request uses the same 
+      implementation logic that we already have in place.
+      
   Review what is useEffect?
     - https://www.robinwieruch.de/react-useeffect-hook/
     
@@ -21,6 +37,35 @@
 import * as React from 'react';
 
 const API_ENDPOINT = 'https://hn.algolia.com/api/v1/search?query=';
+
+/*No longer needed because wse will use const API_ENDPOINT to fetch data.
+const initialStories = [
+  {
+    title: 'React',
+    url: 'https://reactjs.org/',
+    author: 'Jordan Walke',
+    num_comments: 3,
+    points: 4,
+    objectID: 0,
+  },
+  {
+    title: 'Redux',
+    url: 'https://redux.js.org/',
+    author: 'Dan Abramov, Andrew Clark',
+    num_comments: 2,
+    points: 5,
+    objectID: 1,
+  },
+];*/
+
+/* Removed because we will fetch data directly using the API
+const getAsyncStories = () =>
+  new Promise((resolve) =>
+    setTimeout(
+      () => resolve({ data: { stories: initialStories } }),
+      2000
+    )
+  ); */
 
 const storiesReducer = (state, action) => {
   switch (action.type) {
@@ -73,14 +118,39 @@ const App = () => {
     'React'
   );
 
+  //Reducer hook
   const [stories, dispatchStories] = React.useReducer(
     storiesReducer,
     { data: [], isLoading: false, isError: false }
   );
 
- /* React.useEffect(() => {
+  React.useEffect(() => {
     dispatchStories({ type: 'STORIES_FETCH_INIT' });
 
+    //First - API is used to fetch popular tech stories for a certain query 
+    //        (a search term). In this case  we fetch stories about 'react' (B)
+
+    //Second - the native browser's fetch API (see https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API)
+    //         to make this request.
+    //         For 'fetch' API, the response needs to be translated to JSON (C)
+    
+    //Finally - the returned result has a different data structure which we send
+    //          payload to our component's state reducer (dispatchStories)
+    fetch(`${API_ENDPOINT}react`) // B
+      .then((response) => response.json()) // C
+      .then((result) => {
+         dispatchStories({
+           type: 'STORIES_FETCH_SUCCESS',
+           payload: result.hits, //D
+         });
+      })
+      .catch(() =>
+        dispatchStories({type:'STORIES_FETCH_FAILURE'})
+      );
+    }, []);
+
+
+  /* Replaced with API call using Fetch
     getAsyncStories()
       .then((result) => {
         dispatchStories({
@@ -93,22 +163,7 @@ const App = () => {
       );
   }, []); */
 
-  React.useEffect(() => {
-    dispatchStories({ type: 'STORIES_FETCH_INIT' });
-
-    fetch(`${API_ENDPOINT}react`)
-      .then((response) => response.json())
-      .then((result) => {
-        dispatchStories({
-          type: 'STORIES_FETCH_SUCCESS',
-          payload: result.hits,
-        });
-      })
-      .catch(() =>
-        dispatchStories({ type: 'STORIES_FETCH_FAILURE' })
-      );
-  }, []);
-
+  
   const handleRemoveStory = (item) => {
     dispatchStories({
       type: 'REMOVE_STORY',
