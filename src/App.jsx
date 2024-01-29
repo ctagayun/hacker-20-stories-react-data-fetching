@@ -118,13 +118,43 @@ const App = () => {
     'React'
   );
 
-  //Same as in React.useState, the reducer initializes "stories" 
-  //with an empty list
-  const [stories, dispatchStories] = React.useReducer(
+  /*
+    Take the following hooks: And merge them into one useReducer 
+ hook for a unified state. Because technically, all states related 
+ to the asynchronous data belong together, which doesn't only 
+ include the stories as actual data, but also their loading and 
+ error states.
+    That's where one reducer and React's useReducer Hook come 
+ into play to manage domain related states.
+
+      const App = () => {
+      ...
+      const [stories, dispatchStories] = React.useReducer(
+        storiesReducer,
+        []
+      );
+      const [isLoading, setIsLoading] = React.useState(false);
+      const [isError, setIsError] = React.useState(false);
+      ...
+    };
+  */
+
+   //data: [], isLoading, isError flags hooks merged into one 
+  //useReducer hook for a unified state.
+  const [stories, dispatchStories] = React.useReducer( //A
     storiesReducer,
-    { data: [], isLoading: false, isError: false } //We want an empty list [] for the initial state
+    { data: [], isLoading: false, isError: false } //We want an empty list data [] 
+                                                   //for the initial state, set isloading=false
+                                                   //is error=false
   );
 
+  //After merging the three useState hooks into one Reducer hook,
+  //we cannot use the state updater functions from React's 
+  //useState Hooks anymore like:
+  //     setIsLoading, setIsError
+  //everything related to asynchronous data fetching must now use 
+  //the new dispatch function "dispatchStories" (A)
+  //for updating state transitions 
   React.useEffect(() => {
     dispatchStories({ type: 'STORIES_FETCH_INIT' });
 
