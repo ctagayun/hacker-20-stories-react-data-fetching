@@ -156,7 +156,9 @@ const App = () => {
   //the new dispatch function "dispatchStories" (A)
   //for updating state transitions 
   React.useEffect(() => {
-    dispatchStories({ type: 'STORIES_FETCH_INIT' });
+     //dispatchStories receiving different payload
+    dispatchStories({ type: 'STORIES_FETCH_INIT' }); //for init
+                     //dispatchStories receives STORIES_FETCH_INIT as type
 
     //First - API is used to fetch popular tech stories for a certain query 
     //        (a search term). In this case  we fetch stories about 'react' (B)
