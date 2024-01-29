@@ -67,6 +67,20 @@ const getAsyncStories = () =>
     )
   ); */
 
+//Again the first thing to do when using React.useReducer hook
+//is to define a reducer function outside of the component.
+//A reducer function always receives a state and an action. 
+//Based on these two arguments, returns a new state.
+
+/* 
+ We changed two things from the above original reducer function. 
+   1. First, we introduced new types when we called the dispatch 
+      function from the outside. 
+      Therefore we need to add new cases for state transitions. 
+   2. Second, we changed the state structure from an array to 
+      a complex object. Therefore we need to take the new complex 
+      object into account as incoming state and returned state:
+*/
 const storiesReducer = (state, action) => {
   switch (action.type) {
     case 'STORIES_FETCH_INIT':
