@@ -8,6 +8,7 @@
      - Remove the initialStories variable, because this data will 
      come from the API.
 
+     - remove getAsyncStories because will fetch the data directly from the API.
      - Use the browser's native fetch API to perform the request.
 
      - Note: A successful or erroneous request uses the same 
@@ -38,26 +39,6 @@ import * as React from 'react';
 
 const API_ENDPOINT = 'https://hn.algolia.com/api/v1/search?query=';
 
-/*No longer needed because wse will use const API_ENDPOINT to fetch data.
-const initialStories = [
-  {
-    title: 'React',
-    url: 'https://reactjs.org/',
-    author: 'Jordan Walke',
-    num_comments: 3,
-    points: 4,
-    objectID: 0,
-  },
-  {
-    title: 'Redux',
-    url: 'https://redux.js.org/',
-    author: 'Dan Abramov, Andrew Clark',
-    num_comments: 2,
-    points: 5,
-    objectID: 1,
-  },
-];*/
-
 /* No need for this because we will fetch data directly using the API
 const getAsyncStories = () =>
   new Promise((resolve) =>
@@ -76,36 +57,68 @@ const getAsyncStories = () =>
  We changed two things from the above original reducer function. 
    1. First, we introduced new types when we called the dispatch 
       function from the outside. 
-      Therefore we need to add new cases for state transitions. 
+      Therefore we need to add the following new cases for state transitions.
+         'STORIES_FETCH_INIT' 
+         'STORIES_FETCH_SUCCESS'
+         'STORIES_FETCH_FAILURE'
+         'REMOVE_STORY'
+         throw new Error();
    2. Second, we changed the state structure from an array to 
       a complex object. Therefore we need to take the new complex 
       object into account as incoming state and returned state:
+
+   3.For every state transition, we return a new state object 
+     which contains all the key/value pairs from the current 
+     state object (via JavaScript's spread operator ...state) and 
+     the new overwriting properties 
+     
+     For example, STORIES_FETCH_FAILURE sets the 
+     isLoading boolean to false and sets the isError boolean 
+     to true, while keeping all the the other state intact 
+     (e.g. data alias stories)
 */
 const storiesReducer = (state, action) => {
   switch (action.type) {
-    case 'STORIES_FETCH_INIT':
+    case 'STORIES_FETCH_INIT': //distinct type and payload 
+                               //received by dispatchStories 
+                               //dispatch function
+                               //so we need to add it here
       return {
-        ...state,
+        ...state,              //return new state object with KV pairs
+                               //via spread operator from current state object
         isLoading: true,
         isError: false,
       };
-    case 'STORIES_FETCH_SUCCESS':
+    case 'STORIES_FETCH_SUCCESS': //distinct type and payload 
+                                  //received by dispatchStories 
+                                  //dispatch function
+                                  //so we need to add it here
       return {
         ...state,
         isLoading: false,
         isError: false,
         data: action.payload,
       };
-    case 'STORIES_FETCH_FAILURE':
+    case 'STORIES_FETCH_FAILURE':   //another distinct type and payload 
+                                    //received by dispatchStories 
+                                    //dispatch function 
+                                    //so we need to add it here
       return {
         ...state,
         isLoading: false,
         isError: true,
       };
-    case 'REMOVE_STORY':
+    case 'REMOVE_STORY':              //another distinct type and payload 
+                                      //received by dispatchStories 
+                                      //dispatch function
+                                      //so we need to add it here
+                                  //Observe how the REMOVE_STORY action 
+                                  //changed as well. It operates on the 
+                                  //state.data, and no longer just on the
+                                  // plain "state".
       return {
         ...state,
-        data: state.data.filter(
+        data: state.data.filter(  //now operate on state.data not just "state"
           (story) => action.payload.objectID !== story.objectID
         ),
       };
@@ -154,7 +167,7 @@ const App = () => {
   */
 
    //data: [], isLoading, isError flags hooks merged into one 
-  //useReducer hook for a unified state.
+   //useReducer hook for a unified state.
   const [stories, dispatchStories] = React.useReducer( //A
     storiesReducer,
     { data: [], isLoading: false, isError: false } //We want an empty list data [] 
@@ -167,7 +180,7 @@ const App = () => {
   //useState Hooks anymore like:
   //     setIsLoading, setIsError
   //everything related to asynchronous data fetching must now use 
-  //the new dispatch function "dispatchStories" (A)
+  //the new dispatch function "dispatchStories" see (A)
   //for updating state transitions 
   React.useEffect(() => {
      //dispatchStories receiving different payload
@@ -222,6 +235,8 @@ const App = () => {
     setSearchTerm(event.target.value);
   };
 
+  //by addressing the state as object and not as array anymore,
+  //note that it operates on the state.data no longer on the plain state.
   const searchedStories = stories.data.filter((story) =>
     story.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
