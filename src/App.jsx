@@ -58,7 +58,7 @@ const initialStories = [
   },
 ];*/
 
-/* Removed because we will fetch data directly using the API
+/* No need for this because we will fetch data directly using the API
 const getAsyncStories = () =>
   new Promise((resolve) =>
     setTimeout(
@@ -118,10 +118,11 @@ const App = () => {
     'React'
   );
 
-  //Reducer hook
+  //Same as in React.useState, the reducer initializes "stories" 
+  //with an empty list
   const [stories, dispatchStories] = React.useReducer(
     storiesReducer,
-    { data: [], isLoading: false, isError: false }
+    { data: [], isLoading: false, isError: false } //We want an empty list [] for the initial state
   );
 
   React.useEffect(() => {
