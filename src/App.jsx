@@ -48,6 +48,11 @@ const getAsyncStories = () =>
     )
   ); */
 
+//reducerHook is best to use if multiple states are dependent on each other.
+//For stories, boolean is Loading, and error are all related to data fetching. 
+//All three properties/state could be a part of one complex object (example data, isLoading, error)
+//managed by a reducer
+
 //Again the first thing to do when using React.useReducer hook
 //is to define a reducer function outside of the component.
 //A reducer function always receives a state and an action. 
@@ -210,7 +215,7 @@ const App = () => {
     }, []);
 
 
-  /* Replaced with API call using Fetch
+  /* Replaced this with API call using Fetch (see above)
     getAsyncStories()
       .then((result) => {
         dispatchStories({
@@ -237,6 +242,7 @@ const App = () => {
 
   //by addressing the state as object and not as array anymore,
   //note that it operates on the state.data no longer on the plain state.
+  //"stories" here is the state updated by the reducer function
   const searchedStories = stories.data.filter((story) =>
     story.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
